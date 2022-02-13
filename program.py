@@ -1,32 +1,44 @@
 import pygame
+from camera import Camera
 
 FPS = 60
+CAMERA_SIZE=(1280, 720)
 
 def start():
     pygame.init()
 
     clock = pygame.time.Clock()
-    display = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+    display = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+
+    camera = Camera(CAMERA_SIZE)
+    camera.start()
 
     appRunning = True
 
+    # main loop
     while appRunning == True:
         try:
             clock.tick(FPS)
+
+            # draw camera image
+            hasDrawn = camera.draw(display)
             
-            # TODO: execute game loop
+            # update screen when needed
+            if hasDrawn:
+                pygame.display.flip()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
                     appRunning = False
                     break
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        pygame.quit()
                         appRunning = False
                         break
 
         except KeyboardInterrupt:
-            pygame.quit()
+            appRunning = False
             break
+
+    camera.stop()
+    pygame.quit()
