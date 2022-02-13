@@ -1,16 +1,20 @@
 import pygame
 
+FPS = 60
+
 def start():
     pygame.init()
 
+    clock = pygame.time.Clock()
     display = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
 
     appRunning = True
 
     while appRunning == True:
         try:
+            clock.tick(FPS)
+            
             # TODO: execute game loop
-            # TODO: restrict fps
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
