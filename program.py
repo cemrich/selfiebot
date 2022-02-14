@@ -1,7 +1,7 @@
 import pygame
 from camera import Camera
 
-FPS = 60
+FPS = 30
 CAMERA_SIZE=(1280, 720)
 
 def start():
