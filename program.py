@@ -2,7 +2,9 @@ import pygame
 from camera import Camera
 
 FPS = 30
-CAMERA_SIZE=(1280, 720)
+CAMERA_SIZE = (1280, 720)
+IMAGE_SIZE = (512, 330)
+IMAGE_PATH = 'temp.bmp'
 
 def start():
     pygame.init()
@@ -37,7 +39,7 @@ def start():
                         break
                         
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    camera.saveImage()
+                    camera.saveImage(IMAGE_PATH, IMAGE_SIZE)
 
         except KeyboardInterrupt:
             appRunning = False
