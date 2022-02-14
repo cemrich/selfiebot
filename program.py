@@ -35,6 +35,9 @@ def start():
                     if event.key == pygame.K_ESCAPE:
                         appRunning = False
                         break
+                        
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    camera.saveImage()
 
         except KeyboardInterrupt:
             appRunning = False

@@ -26,3 +26,12 @@ class Camera:
 
         return True
 
+    def saveImage(self):
+        while not self.camera.query_image():
+            pass
+
+        captureSurface = self.camera.get_image()
+        captureSurface = pygame.transform.flip(captureSurface, True, False)
+        captureSurface = pygame.transform.scale(captureSurface, (512, 330))
+        pygame.image.save(captureSurface, "test.bmp")
+
