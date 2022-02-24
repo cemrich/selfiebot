@@ -1,28 +1,53 @@
-(async () => { start() })()
+const targetWidth = 300;
+const targetHeight = 300;
 
-async function start () {
-  const videoElement = document.getElementById('webcam')
+const videoElement = document.createElement('video');
+videoElement.autoplay = true;
+videoElement.playsinline = true;
+videoElement.addEventListener('canplay', onVideoReady);
 
-  videoElement.addEventListener('click', function () {
-    takePicture(videoElement)
-  })
+const canvas = document.getElementById('canvas');
+const context = canvas.getContext('2d');
+canvas.width = targetWidth;
+canvas.height = targetHeight;
+canvas.addEventListener('click', takePicture);
 
+(async () => openWebcam())();
+
+async function openWebcam() {
   try {
-    const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true })
-    videoElement.srcObject = cameraStream
+    const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+    videoElement.srcObject = cameraStream;
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
 }
 
-function takePicture (videoElement) {
-  const canvas = document.createElement('canvas')
-  const context = canvas.getContext('2d')
-  canvas.width = 300
-  canvas.height = 300
-  context.drawImage(videoElement, 0, 0, canvas.width, canvas.height)
+function onVideoReady() {
+  // mirror image  for selfies
+  context.translate(targetWidth, 0);
+  context.scale(-1, 1);
 
-  const data = canvas.toDataURL('image/png')
-  const photoElement = document.getElementById('photo')
-  photoElement.setAttribute('src', data)
+  update();
+}
+
+function update() {
+  const videoWidth = videoElement.videoWidth;
+  const videoHeight = videoElement.videoHeight;
+
+  // scale to correct height and crop sides
+  const uncroppedTargetWidth = targetWidth * (videoWidth / videoHeight) * (targetHeight / targetWidth);
+  const horizontalOffset = (uncroppedTargetWidth - targetWidth) / 2;
+
+  // draw
+  context.drawImage(videoElement, -horizontalOffset, 0, uncroppedTargetWidth, canvas.height);
+  
+  // update loop
+  requestAnimationFrame(update);
+}
+
+function takePicture() {
+  const data = canvas.toDataURL('image/png');
+  const photoElement = document.getElementById('photo');
+  photoElement.setAttribute('src', data);
 }
