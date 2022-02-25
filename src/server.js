@@ -6,18 +6,20 @@ import path from 'path';
 
 const app = express();
 const port = 3000;
+const mimeTypes = {
+  'image/jpeg': 'jpg',
+  'image/webp': 'webp',
+  'image/png': 'png',
+};
 
 app.use(express.static('public'));
 
 app.post('/picture', function (req, res) {
   const bb = busboy({ headers: req.headers });
 
-  bb.on('file', function(name, file, info) {
-    const { filename, encoding, mimeType } = info;
-    // TODO: use unique name
-    // TODO: infer file extension from mime type
+  bb.on('file', function(_, file, info) {
     // TODO: reject unwanted files
-    const saveTo = path.join(config.imageUploadDirectory, 'test.jpg');
+    const saveTo = getUploadPath(info.mimeType);
     file.pipe(fs.createWriteStream(saveTo));
   });
 
@@ -34,3 +36,9 @@ app.post('/picture', function (req, res) {
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
+
+function getUploadPath(mimeType) {
+  const fileBaseName = Date.now();
+  const fileExtension = mimeTypes[mimeType];
+  return path.join(config.imageUploadDirectory, `${fileBaseName}.${fileExtension}`);
+}
