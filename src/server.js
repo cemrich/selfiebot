@@ -4,14 +4,13 @@ import busboy from 'busboy';
 import fs from 'fs';
 import path from 'path';
 
-const app = express();
-const port = 3000;
 const mimeTypes = {
   'image/jpeg': 'jpg',
   'image/webp': 'webp',
   'image/png': 'png',
 };
 
+const app = express();
 app.use(express.static('public'));
 
 app.post('/picture', function (req, res) {
@@ -33,8 +32,8 @@ app.post('/picture', function (req, res) {
   return;
 });
 
-app.listen(port, () => {
-  console.log(`Listening on port ${port}`);
+app.listen(config.port, () => {
+  console.log(`Listening on port ${config.port}`);
 });
 
 function getUploadPath(mimeType) {
