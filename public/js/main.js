@@ -1,5 +1,7 @@
-const targetWidth = 300;
-const targetHeight = 300;
+import VideoSize from './VideoSize.js';
+
+const targetWidth = 480;
+const targetHeight = 480;
 
 const videoElement = document.createElement('video');
 videoElement.autoplay = true;
@@ -16,8 +18,14 @@ canvas.addEventListener('click', takePicture);
 
 async function openWebcam() {
   try {
-    // TODO: use better webcam quality
-    const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+    const constraints = { 
+      video: { 
+        width: { ideal: 640 },
+        height: { ideal: 480 },
+        facingMode: { ideal: 'environment' },
+      }
+    };
+    const cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
     videoElement.srcObject = cameraStream;
   } catch (error) {
     console.error(error);
@@ -25,27 +33,28 @@ async function openWebcam() {
 }
 
 function onVideoReady() {
-  // mirror image  for selfies
-  context.translate(targetWidth, 0);
-  context.scale(-1, 1);
+  const videoSize = new VideoSize(
+    videoElement.videoWidth, 
+    videoElement.videoHeight,
+    targetWidth,
+    targetHeight
+  );
 
-  update();
+  update(videoSize);
 }
 
-function update() {
-  // TODO: move calculations out on update toop to onVideoReady
-  const videoWidth = videoElement.videoWidth;
-  const videoHeight = videoElement.videoHeight;
-
-  // scale to correct height and crop sides
-  const uncroppedTargetWidth = targetWidth * (videoWidth / videoHeight) * (targetHeight / targetWidth);
-  const horizontalOffset = (uncroppedTargetWidth - targetWidth) / 2;
-
+function update(videoSize) {
   // draw
-  context.drawImage(videoElement, -horizontalOffset, 0, uncroppedTargetWidth, canvas.height);
+  context.drawImage(
+    videoElement, 
+    videoSize.horizontalOffset, 
+    videoSize.verticalOffset, 
+    videoSize.uncroppedTargetWidth, 
+    videoSize.uncroppedTargetHeight
+  );
   
   // update loop
-  requestAnimationFrame(update);
+  requestAnimationFrame(() => update(videoSize));
 }
 
 function takePicture() {
