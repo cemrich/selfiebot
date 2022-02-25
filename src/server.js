@@ -1,3 +1,4 @@
+import config from './config.js';
 import express from 'express';
 import busboy from 'busboy';
 import fs from 'fs';
@@ -13,11 +14,10 @@ app.post('/picture', function (req, res) {
 
   bb.on('file', function(name, file, info) {
     const { filename, encoding, mimeType } = info;
-    // TODO: write to correct location
     // TODO: use unique name
     // TODO: infer file extension from mime type
     // TODO: reject unwanted files
-    const saveTo = path.join('.', 'test.jpg');
+    const saveTo = path.join(config.imageUploadDirectory, 'test.jpg');
     file.pipe(fs.createWriteStream(saveTo));
   });
 
