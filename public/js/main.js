@@ -1,7 +1,5 @@
 import VideoSize from './VideoSize.js';
-
-const targetWidth = 480;
-const targetHeight = 480;
+import config from './config.js'
 
 const videoElement = document.createElement('video');
 videoElement.autoplay = true;
@@ -10,8 +8,8 @@ videoElement.addEventListener('canplay', onVideoReady);
 
 const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
-canvas.width = targetWidth;
-canvas.height = targetHeight;
+canvas.width = config.imageWidth;
+canvas.height = config.imageHeight;
 canvas.addEventListener('click', takePicture);
 
 (async () => openWebcam())();
@@ -20,9 +18,9 @@ async function openWebcam() {
   try {
     const constraints = { 
       video: { 
-        width: { ideal: 640 },
-        height: { ideal: 480 },
-        facingMode: { ideal: 'environment' },
+        width: { ideal: config.idealWebcamWidth },
+        height: { ideal: config.idealWebcamHeight },
+        facingMode: { ideal: config.idealWebcamFacingMode },
       }
     };
     const cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -36,8 +34,8 @@ function onVideoReady() {
   const videoSize = new VideoSize(
     videoElement.videoWidth, 
     videoElement.videoHeight,
-    targetWidth,
-    targetHeight
+    config.imageWidth,
+    config.imageHeight
   );
 
   update(videoSize);
@@ -58,7 +56,7 @@ function update(videoSize) {
 }
 
 function takePicture() {
-  const data = canvas.toDataURL('image/png');
+  const data = canvas.toDataURL(config.imageMimeType, config.imageQuality);
   const photoElement = document.getElementById('photo');
   photoElement.setAttribute('src', data);
 
@@ -66,9 +64,8 @@ function takePicture() {
 }
 
 async function sendPicture() {
-  const blob = await canvasToBlob(canvas);
-  // TODO: use constant for image mime type and quality
-  const file = new File([blob], 'picture.png', { type: 'image/png' })
+  const blob = await canvasToBlob(canvas, config.imageMimeType, config.imageQuality);
+  const file = new File([blob], 'picture.dat', { type: config.imageMimeType })
   
   const formData = new FormData();
   formData.append('files[]', file);
@@ -81,7 +78,7 @@ async function sendPicture() {
   console.log('respose', response);
 }
 
-async function canvasToBlob(canvas) {
+async function canvasToBlob(canvas, mimeType, quality) {
   return new Promise((resolve, reject) => {
     canvas.toBlob(blob => {
       if (blob == null) {
@@ -89,6 +86,6 @@ async function canvasToBlob(canvas) {
       } else {
         resolve(blob);
       }
-    });
+    }, mimeType, quality);
   });
 }
